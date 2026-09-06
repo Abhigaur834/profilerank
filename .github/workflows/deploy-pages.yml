@@ -1,0 +1,50 @@
+name: Deploy ProfileRank to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Activate LinkedIn URL analyzer UI
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<button class="tab" disabled>Profile URL · coming soon</button>'
+          new = '<button class="tab" id="profileUrlBtn" data-linkedin-url>LinkedIn Profile URL</button>'
+          if old in s:
+              s = s.replace(old, new, 1)
+          marker = '<script src="linkedin-import.js"></script>'
+          if marker not in s:
+              s = s.replace('</body>', marker + '</body>', 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

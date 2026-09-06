@@ -1,0 +1,10 @@
+{
+  "name": "profilerank",
+  "version": "0.2.0",
+  "private": true,
+  "description": "ProfileRank career profile intelligence MVP",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "start": "python3 -m http.server 8080"
+  }
+}

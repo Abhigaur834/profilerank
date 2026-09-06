@@ -1,0 +1,24 @@
+name: Wire LinkedIn importer
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject importer into app
+        shell: bash
+        run: |
+          if grep -q "PROFILERANK_LINKEDIN_IMPORT" app.js; then
+            echo "LinkedIn importer already wired"
+            exit 0
+          fi
+          printf '\n/* PROFILERANK_LINKEDIN_IMPORT */\n(function(){var s=document.createElement("script");s.src="linkedin-import.js";s.async=false;document.head.appendChild(s)})();\n' >> app.js
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app.js
+          git commit -m "Wire LinkedIn profile URL importer" || exit 0
+          git push

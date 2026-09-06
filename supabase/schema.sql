@@ -42,6 +42,10 @@ alter table public.profiles enable row level security;
 alter table public.analyses enable row level security;
 alter table public.action_items enable row level security;
 
+grant select, insert, update on public.profiles to authenticated;
+grant select, insert on public.analyses to authenticated;
+grant select, insert, update, delete on public.action_items to authenticated;
+
 create policy "Users can read own profile" on public.profiles for select using (auth.uid() = id);
 create policy "Users can insert own profile" on public.profiles for insert with check (auth.uid() = id);
 create policy "Users can update own profile" on public.profiles for update using (auth.uid() = id);
@@ -49,7 +53,6 @@ create policy "Users can update own profile" on public.profiles for update using
 create policy "Users can read own analyses" on public.analyses for select using (auth.uid() = user_id);
 create policy "Users can create own analyses" on public.analyses for insert with check (auth.uid() = user_id);
 
-auto grant select on public.action_items to authenticated;
 create policy "Users can manage own action items" on public.action_items for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 create or replace function public.handle_new_user()
